@@ -1,7 +1,8 @@
 const electron = require('electron')
 const jQuery = require('jquery')
-const Datauri = require('datauri');
 var fs = require('fs');
+var sharp = require('sharp');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.

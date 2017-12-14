@@ -31,6 +31,9 @@
     <Compile Include="main.js" />
     <Compile Include="renderer.js" />
     <Content Include=".gitignore" />
+    <Content Include="about.html" />
+    <Content Include="camera.html" />
+    <Content Include="canvas.html" />
     <Content Include="index.html" />
     <Content Include="LICENSE.md" />
     <Content Include="package-lock.json" />
