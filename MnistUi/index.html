@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Hello World!</title>
+    <title>MnistUi</title>
 
     <!-- Vue -->
     <script src="node_modules/vue/dist/vue.min.js"></script>
@@ -43,16 +43,16 @@
     <nav class="navbar has-shadow">
         <div class="container">
             <div class="navbar-tabs">
-                <a class="navbar-item is-tab is-active">
+                <a class="navbar-item is-tab is-active" href="index.html">
                     欢迎
                 </a>
-                <a class="navbar-item is-tab">
+                <a class="navbar-item is-tab" href="canvas.html">
                     画板
                 </a>
-                <a class="navbar-item is-tab ">
+                <a class="navbar-item is-tab " href="camera.html">
                     摄像头
                 </a>
-                <a class="navbar-item is-tab">
+                <a class="navbar-item is-tab" href="about.html">
                     关于
                 </a>
             </div>
@@ -61,7 +61,30 @@
 
     <!-- body -->
     <section class="section">
-
+        <div class="container">
+            <div class="columns">
+                <div class="column">
+                    <figure class="image is-1by1">
+                        <img src="res/tf.png">
+                    </figure>
+                </div>
+                <div class="column">
+                    <p class="is-warning">
+                        TensorFlow 多扯一点
+                    </p>
+                </div>
+                <div class="column">
+                    <figure class="image is-1by1">
+                        <img src="res/MNIST.png">
+                    </figure>
+                </div>
+                <div class="column">
+                    <p class="is-warning">
+                        再扯一点
+                    </p>
+                </div>
+            </div>
+        </div>
     </section>
 
 

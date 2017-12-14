@@ -1,5 +1,7 @@
 const electron = require('electron')
 const jQuery = require('jquery')
+const Datauri = require('datauri');
+var fs = require('fs');
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -14,7 +16,10 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1024, height: 768})
+    mainWindow = new BrowserWindow({
+        width: 1024, height: 768,
+        autoHideMenuBar: true
+    })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -34,6 +39,10 @@ function createWindow () {
     mainWindow = null
   })
 }
+
+// Ipc
+const ipcMain = require('electron').ipcMain
+ipcMain.on('inimg', getImg)
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -59,3 +68,21 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+//globle var
+global.sharedObject = {
+    newTel: '000'
+}
+
+//get image
+function getImg(event, arg) {
+    console.log(arg)
+    event.sender.send('inimg-reply', 'OK');
+    
+    var regex = /^data:.+\/(.+);base64,(.*)$/;
+    var matches = arg.match(regex);
+    var ext = matches[1];
+    var data = matches[2];
+    var buffer = new Buffer(data, 'base64');
+    fs.writeFileSync('data.' + ext, buffer);
+}
+

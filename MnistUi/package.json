@@ -22,8 +22,11 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "bulma": "^0.6.1",
+    "datauri": "^1.0.5",
+    "electron-canvas-to-buffer": "^2.0.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
+    "socket.io": "^2.0.4",
     "vue": "^2.5.10"
   }
 }
