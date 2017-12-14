@@ -142,3 +142,4 @@ function getImg(event, arg) {
     dataUri2png(arg)
 }
 
+//camera

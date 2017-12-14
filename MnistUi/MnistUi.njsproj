@@ -34,11 +34,24 @@
     <Content Include="about.html" />
     <Content Include="camera.html" />
     <Content Include="canvas.html" />
+    <Content Include="electron-run.cmd" />
     <Content Include="index.html" />
     <Content Include="LICENSE.md" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
+    <Content Include="python\cut.py" />
+    <Content Include="python\mnist_deep.py" />
+    <Content Include="python\mnist_read.py" />
+    <Content Include="python\remove_alpha.py" />
     <Content Include="README.md" />
+    <Content Include="res\128x128.png" />
+    <Content Include="res\MNIST.png" />
+    <Content Include="res\tf.png" />
+    <Content Include="test_picture.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="python\" />
+    <Folder Include="res\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
