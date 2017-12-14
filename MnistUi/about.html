@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Hello World!</title>
+    <title>MnistUi</title>
 
     <!-- Vue -->
     <script src="node_modules/vue/dist/vue.min.js"></script>
@@ -43,13 +43,16 @@
     <nav class="navbar has-shadow">
         <div class="container">
             <div class="navbar-tabs">
-                <a class="navbar-item is-tab is-active">
+                <a class="navbar-item is-tab " href="index.html">
+                    欢迎
+                </a>
+                <a class="navbar-item is-tab" href="canvas.html">
                     画板
                 </a>
-                <a class="navbar-item is-tab ">
+                <a class="navbar-item is-tab " href="camera.html">
                     摄像头
                 </a>
-                <a class="navbar-item is-tab">
+                <a class="navbar-item is-tab is-active" href="about.html">
                     关于
                 </a>
             </div>
@@ -58,53 +61,32 @@
 
     <!-- body -->
     <section class="section">
-        <div class="columns">
-            <div class="column">
-                <section class="hero is-link" id="mnist-image-column">
-                    <canvas class="image" id="mnist-image"></canvas>
-                </section>
-            </div>
-            <div class="column">
-                <div class="button is-warning">draw</div>
-                <div class="button is-warning">clear</div>
-                <div class="button is-warning">move</div>
-                <div class="button is-warning">save</div>
-                <div class="button is-warning">load</div>
-                <div class="button is-warning">verify</div>
+        <div class="container">
+            <div class="columns">
+                <div class="column">
+                    <figure class="image is-1by1">
+                        <img src="res/tf.png">
+                    </figure>
+                </div>
+                <div class="column">
+                    <p class="is-warning">
+                        飞龙
+                    </p>
+                </div>
+                <div class="column">
+                    <figure class="image is-1by1">
+                        <img src="res/MNIST.png">
+                    </figure>
+                </div>
+                <div class="column">
+                    <p class="is-warning">
+                        中国民航大学
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- canvas -->
-    <script>
-        //get canvas
-        var canvas = document.getElementById("mnist-image")
-        if (canvas == null)
-            console.log('canvas init failed!')
-
-        //set canvas resize on window size change
-        window.onresize = function () {
-            var canvasColumn = document.getElementById("mnist-image-column")
-            canvas.width = (canvasColumn.clientWidth > 480) ? 480 : canvasColumn.clientWidth;
-            canvas.height = canvas.width;
-        }
-        //resize to show
-        window.onresize()
-
-        //set draw status
-        var drable = false;
-        canvas.onmousedown = function () { drable = true }
-        canvas.onmouseup = function () { drable = false }
-
-        //draw
-        canvas.onmousemove = function (e) {
-            if (drable) {
-                context.fillRect(e.layerX, e.layerY, 10, 10)
-            }
-        }
-
-        var context = canvas.getContext('2d');
-    </script>
 
     <!-- navs -->
     <script>

@@ -1,6 +1,6 @@
 import cv2
 
-image = cv2.imread('data.bin.png')
+image = cv2.imread('./data/data.bin.png')
 
 GrayImage=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 ret,binImage=cv2.threshold(GrayImage,127,255,cv2.THRESH_BINARY)
@@ -27,7 +27,7 @@ def calch(h):
 	#cv2.waitKey(0)
 	#cv2.destroyAllWindows()
 
-	#cv2.imwrite('data.minh.png', h)
+	cv2.imwrite('./data/data.minh.png', h)
 	y=999;
 	height=0;
 	for i in range(0,x):
@@ -60,7 +60,7 @@ def calcv(v):
 	#cv2.waitKey(0)
 	#cv2.destroyAllWindows()
 
-	#cv2.imwrite('data.minv.png', v)
+	cv2.imwrite('./data/data.minv.png', v)
 	x=999;
 	width=0;
 	for i in range(0,y):
@@ -70,23 +70,23 @@ def calcv(v):
 			    x = i
 	return x,width
 
-def subImg(img,x,y,w,h,dstw,dsth):
-	x ==5
-	y-=5
-	w+=10
-	h+=10
-	tmp = img[x:x+w.y:y+h]
-	return cv2.resize(tmp, (dstw,dsth))
+#def subImg(img,x,y,w,h,dstw,dsth):
+#	x ==5
+#	y-=5
+#	w+=10
+#	h+=10
+#	tmp = img[x:x+w.y:y+h]
+#	return cv2.resize(tmp, (dstw,dsth))
 
 
 y,h = calch(binImage.copy())
 x,w = calcv(binImage.copy())
 print(x,y,w,h)
 
-x=274
-y=139
-w=130
-h=256
+#x=274
+#y=139
+#w=130
+#h=256
 
 size = (h, w)[w>h]
 new_x=x+w/2-size/2
@@ -99,4 +99,4 @@ sml=cv2.resize(ori, (28,28))
 #cv2.waitKey(0)
 #cv2.destroyAllWindows()
 
-cv2.imwrite('data.minv.png', sml)
+cv2.imwrite('./data/data.min.png', sml)

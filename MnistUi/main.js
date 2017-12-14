@@ -1,6 +1,7 @@
 const electron = require('electron')
 const jQuery = require('jquery')
-var fs = require('fs');
+const { exec } = require('child_process');
+const fs = require('fs');
 
 // Module to control application life.
 const app = electron.app
@@ -73,16 +74,71 @@ global.sharedObject = {
     newTel: '000'
 }
 
+var python = "python "
+
+function processErr(error, stdout, stderr)
+{
+    console.error(`exec error: ${error}`);
+    ipcEvent.sender.send('error', error);
+    ipcEvent.sender.send('errormsg', stderr);
+}
+
+function verifyImage()
+{
+    /*exec(python + __dirname + '/python/cut.py', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error)
+            return;
+        }
+        ipcEvent.sender.send('verify', 'OK');*/
+        ipcEvent.sender.send('finish', '9');
+    //});
+}
+
+function cutImage()
+{
+    exec(python + __dirname + '/python/cut.py', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error,stdout,stderr)
+            return;
+        }
+        ipcEvent.sender.send('cut', 'OK');
+
+        verifyImage()
+    });
+}
+
+function preImg()
+{
+    exec(python + __dirname + '/python/remove_alpha.py', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error, stdout, stderr)
+            return;
+        }
+        ipcEvent.sender.send('binimg', 'OK');
+
+        cutImage();
+    });
+}
+
+function dataUri2png(imgdata)
+{
+    var regex = /^data:.+\/(.+);base64,(.*)$/;
+    var matches = imgdata.match(regex);
+    var ext = matches[1];
+    var data = matches[2];
+    var buffer = new Buffer(data, 'base64');
+    //fs.writeFileSync('data.' + ext, buffer);
+    fs.writeFile('./data/data.' + ext, buffer, preImg)
+}
+
+var ipcEvent;
 //get image
 function getImg(event, arg) {
     console.log(arg)
     event.sender.send('inimg-reply', 'OK');
-    
-    var regex = /^data:.+\/(.+);base64,(.*)$/;
-    var matches = arg.match(regex);
-    var ext = matches[1];
-    var data = matches[2];
-    var buffer = new Buffer(data, 'base64');
-    fs.writeFileSync('data.' + ext, buffer);
+
+    ipcEvent = event;
+    dataUri2png(arg)
 }
 

@@ -27,6 +27,31 @@
         ipcRenderer.on('inimg-reply', function (event, arg) {
             console.log(arg);
         });
+        ipcRenderer.on('binimg', function (event, arg) {
+            console.log('bin img fin');
+        });
+        ipcRenderer.on('cut', function (event, arg) {
+            console.log('cut fin');
+            $('#preimg')[0].src = './data/data.min.png?' + Math.random();
+        });
+        ipcRenderer.on('error', function (event, arg) {
+            console.log(arg);
+            $('#verror').show();
+            setTimeout(function () { $('#verror').hide(); }, 10000);
+            $('#verify')[0].classList.remove('is-loading')
+            $('#verify')[0].onclick = verifyNum;
+        });
+        ipcRenderer.on('errormsg', function (event, arg) {
+            console.log(arg);
+            vErrorNoti.errorMsg = arg;
+        });
+        ipcRenderer.on('finish', function (event, arg) {
+            console.log('finish');
+            $('#verify')[0].classList.remove('is-loading')
+            $('#verify')[0].onclick = verifyNum;
+            vAnswer.answer = arg;
+            $('#vanswer').show();
+        });
     </script>
 </head>
 <body lang="zh-cn">
@@ -67,6 +92,12 @@
         </div>
     </nav>
 
+    <!-- notification -->
+    <div class="notification is-warning" hidden id="verror">
+        <button class="delete" onclick="$('#verror').hide()" ></button>
+        {{errorMsg}}
+    </div>
+
     <!-- body -->
     <section class="section">
         <div class="columns">
@@ -95,7 +126,7 @@
                 <div class="media-content bd-structure-item bd-is-structure-right">
                     <p>TensorFlow output:</p>
                     <div align="center">
-                        </p><h1 class="title" id="vanswer">{{answer}}</h1></p>
+                        </p><h1 class="title" id="vanswer" hidden>{{answer}}</h1></p>
                     </div>
                 </div>
                 <div align="center">
@@ -164,6 +195,14 @@
                 answer: 0
             }
         })
+
+        var vErrorNoti = new Vue({
+            el: '#verror',
+            data: {
+                errorMsg: '运行时发生错误'
+            }
+        })
+        
     </script>
 
     <!-- verify -->
@@ -178,11 +217,7 @@
             ipcRenderer.send('inimg', canvas.toDataURL("image/png"));
             //show pre img
 
-            //show answer
-            vAnswer.answer++//fortest
-
-            //finish
-            //$('#verify')[0].classList.remove('is-loading')
+            
         }
     </script>
 

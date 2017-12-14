@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Hello World!</title>
+    <title>MnistUi</title>
 
     <!-- Vue -->
     <script src="node_modules/vue/dist/vue.min.js"></script>
@@ -20,6 +20,30 @@
 
     <!-- bulma -->
     <link rel="stylesheet" href="node_modules/bulma/css/bulma.css">
+
+    <!-- ipc -->
+    <script>
+        const ipcRenderer = require('electron').ipcRenderer;
+        ipcRenderer.on('inimg-reply', function (event, arg) {
+            console.log(arg);
+        });
+        ipcRenderer.on('binimg', function (event, arg) {
+            console.log('bin img fin');
+        });
+        ipcRenderer.on('cut', function (event, arg) {
+            console.log('cut fin');
+            $('#preimg')[0].src = 'data.min.png?' + Math.random();
+        });
+        ipcRenderer.on('failed', function (event, arg) {
+            console.log(arg);
+        });
+        ipcRenderer.on('finish', function (event, arg) {
+            console.log('finish');
+            $('#verify')[0].classList.remove('is-loading')
+            $('#verify')[0].onclick = verifyNum;
+            vAnswer.answer = arg;
+        });
+    </script>
 </head>
 <body lang="zh-cn">
     <!--title -->
@@ -43,13 +67,16 @@
     <nav class="navbar has-shadow">
         <div class="container">
             <div class="navbar-tabs">
-                <a class="navbar-item is-tab is-active">
+                <a class="navbar-item is-tab" href="index.html">
+                    欢迎
+                </a>
+                <a class="navbar-item is-tab " href="canvas.html">
                     画板
                 </a>
-                <a class="navbar-item is-tab ">
+                <a class="navbar-item is-tab is-active" href="camera.html">
                     摄像头
                 </a>
-                <a class="navbar-item is-tab">
+                <a class="navbar-item is-tab" href="about.html">
                     关于
                 </a>
             </div>
@@ -59,18 +86,43 @@
     <!-- body -->
     <section class="section">
         <div class="columns">
-            <div class="column">
-                <section class="hero is-link" id="mnist-image-column">
+            <div class="column is-two-thirds" id="mnist-image-column">
+                <section class="hero is-link">
                     <canvas class="image" id="mnist-image"></canvas>
                 </section>
             </div>
             <div class="column">
-                <div class="button is-warning">draw</div>
-                <div class="button is-warning">clear</div>
-                <div class="button is-warning">move</div>
-                <div class="button is-warning">save</div>
-                <div class="button is-warning">load</div>
-                <div class="button is-warning">verify</div>
+                <div class="media-content bd-structure-item bd-is-structure-right">
+                    <p>canvas input:</p>
+                    <div align="center">
+                        <figure class="image is-128x128">
+                            <img id="inimg" src="res/128x128.png">
+                        </figure>
+                    </div>
+                </div>
+                <div class="media-content bd-structure-item bd-is-structure-right">
+                    <p>preprocessing output:</p>
+                    <div align="center">
+                        <figure class="image is-128x128">
+                            <img id="preimg" src="res/128x128.png">
+                        </figure>
+                    </div>
+                </div>
+                <div class="media-content bd-structure-item bd-is-structure-right">
+                    <p>TensorFlow output:</p>
+                    <div align="center">
+                        </p><h1 class="title" id="vanswer">{{answer}}</h1></p>
+                    </div>
+                </div>
+                <div align="center">
+                    <div class="button is-link is-large" id="verify" onclick="verifyNum()">识 别 数 字</div></p>
+                    <a class="button is-danger is-outlined" onclick="context.clearRect(0,0,1000,1000)">
+                        <span>清除</span>
+                        <span class="icon is-small">
+                            <i class="fa fa-times"></i>
+                        </span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -85,8 +137,8 @@
         //set canvas resize on window size change
         window.onresize = function () {
             var canvasColumn = document.getElementById("mnist-image-column")
-            canvas.width = (canvasColumn.clientWidth > 480) ? 480 : canvasColumn.clientWidth;
-            canvas.height = canvas.width;
+            canvas.width = canvasColumn.clientWidth;
+            canvas.height = canvasColumn.clientHeight;
         }
         //resize to show
         window.onresize()
@@ -99,8 +151,13 @@
         //draw
         canvas.onmousemove = function (e) {
             if (drable) {
-                context.fillRect(e.layerX, e.layerY, 10, 10)
+                context.fillRect(e.layerX, e.layerY, 20, 20)
             }
+        }
+
+        //clear
+        function clearConvas() {
+            context.clearConvas();
         }
 
         var context = canvas.getContext('2d');
@@ -109,6 +166,33 @@
     <!-- navs -->
     <script>
 
+    </script>
+
+    <!-- canvas input -->
+    <!-- pre processing output -->
+    <!-- tf answer -->
+    <script>
+        var vAnswer = new Vue({
+            el: '#vanswer',
+            data: {
+                answer: null
+            }
+        })
+    </script>
+
+    <!-- verify -->
+    <script>
+        function verifyNum() {
+            // todo:
+            //start verify
+            $('#verify')[0].onclick = null;
+            $('#verify')[0].classList.add('is-loading')
+            //show in img
+            $('#inimg')[0].src = canvas.toDataURL("image/png");
+            ipcRenderer.send('inimg', canvas.toDataURL("image/png"));
+
+            vAnswer.answer = null;
+        }
     </script>
 
     <!-- footer -->
