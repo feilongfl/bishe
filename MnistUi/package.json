@@ -1,16 +1,16 @@
 {
-  "name": "electron-quick-start",
+  "name": "electron-mnist-ui",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A UI for MNIST",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/feilongfl/mnistui",
   "keywords": [
     "Electron",
-    "quick",
-    "start",
+    "mnisr",
+    "ui",
     "tutorial",
     "demo"
   ],
@@ -20,6 +20,10 @@
     "electron": "~1.7.8"
   },
   "dependencies": {
+    "bootstrap": "^3.3.7",
+    "bulma": "^0.6.1",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.2.1",
     "vue": "^2.5.10"
   }
 }

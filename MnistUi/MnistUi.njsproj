@@ -11,7 +11,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>1c970518-984a-432c-a6cd-1eb30ba70e85</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>server.js</StartupFile>
+    <StartupFile>main.js</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -28,7 +28,12 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="server.js" />
+    <Compile Include="main.js" />
+    <Compile Include="renderer.js" />
+    <Content Include=".gitignore" />
+    <Content Include="index.html" />
+    <Content Include="LICENSE.md" />
+    <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>
