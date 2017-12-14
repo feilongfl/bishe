@@ -1,7 +1,6 @@
 const electron = require('electron')
 const jQuery = require('jquery')
 var fs = require('fs');
-var sharp = require('sharp');
 
 // Module to control application life.
 const app = electron.app
