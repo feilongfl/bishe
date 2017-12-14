@@ -1,0 +1,9 @@
+{
+  "name": "mnist-ui",
+  "version": "0.0.0",
+  "description": "MnistUi",
+  "main": "server.js",
+  "author": {
+    "name": "FEILONG"
+  }
+}
