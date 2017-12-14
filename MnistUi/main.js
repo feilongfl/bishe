@@ -85,14 +85,14 @@ function processErr(error, stdout, stderr)
 
 function verifyImage()
 {
-    /*exec(python + __dirname + '/python/cut.py', (error, stdout, stderr) => {
+    exec(python + __dirname + '/python/mnist_read.py', (error, stdout, stderr) => {
         if (error) {
             processErr(error)
             return;
         }
-        ipcEvent.sender.send('verify', 'OK');*/
-        ipcEvent.sender.send('finish', '9');
-    //});
+        ipcEvent.sender.send('verify', 'OK');
+        ipcEvent.sender.send('finish', stdout);
+    });
 }
 
 function cutImage()

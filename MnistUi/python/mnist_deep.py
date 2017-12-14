@@ -167,6 +167,16 @@ def main(_):
     print('test accuracy %g' % accuracy.eval(feed_dict={
         x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
 
+    #write log
+    writer = tf.summary.FileWriter("log", tf.get_default_graph())
+    writer.close()
+    
+    #save modules
+    saver = tf.train.Saver()
+    model_path = "model.ckpt"
+    saver.save(sess, model_path)
+    saver.close()
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--data_dir', type=str,
