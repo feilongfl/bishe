@@ -186,7 +186,7 @@ def main(_):
             arr.append(pixel)
 
     numarr=[0]*10
-    numarr[9]=1
+    numarr[FLAGS.num]=1
     train_step.run(feed_dict={x: np.array(arr).reshape((1, 784)), y_: np.array(numarr).reshape((1, 10)), keep_prob: 0.5})
 
 	#run test
@@ -204,8 +204,8 @@ def main(_):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str,
-                      default='./mnist/input_data',
-                      help='Directory for storing input data')
+  parser.add_argument('--num', type=int,
+                      help='number input')
   FLAGS, unparsed = parser.parse_known_args()
+  print("train num:",FLAGS.num)
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

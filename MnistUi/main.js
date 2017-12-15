@@ -86,19 +86,17 @@ function processErr(error, stdout, stderr)
 
 function train(event, arg) {
     //var readPyname = '/python/mnist_read.py';
-    var readPyname = '/python/mnist_deep_train.py ' + arg.toString();
-
-    console.log(readPyname);
-    /*
-    exec(python + __dirname + readPyname, (error, stdout, stderr) => {
+    var Pyname = '/python/mnist_deep_train.py --num ' + arg.toString();
+    console.log(Pyname);
+    
+    exec(python + __dirname + Pyname, (error, stdout, stderr) => {
         if (error) {
             processErr(error)
             return;
         }
-        ipcEvent.sender.send('verify', 'OK');
-        ipcEvent.sender.send('finish', stdout);
+        ipcEvent.sender.send('trainFin', stdout);
         console.log(stdout)
-    });*/
+    });
 }
 
 function verifyImage()

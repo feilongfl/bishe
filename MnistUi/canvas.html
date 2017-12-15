@@ -150,7 +150,7 @@
                         </div>
                     </div>
                     <div class="control" >
-                        <button class="button is-primary" id="trainButton" onclick="trainNumber()">训练</button>
+                        <button class="button is-warning" id="trainButton" onclick="trainNumber()">训练</button>
                     </div>
                 </div>
                 <div align="center">
@@ -253,6 +253,12 @@
             $('#trainButton')[0].classList.add('is-loading')
             ipcRenderer.send('train', $('#number')[0].value);
         }
+
+        ipcRenderer.on('trainFin', function (event, arg) {
+            $('#trainButton')[0].onclick = trainNumber;
+            $('#trainButton')[0].classList.remove('is-loading')
+            console.log(arg);
+        });
     </script>
 
     <!-- footer -->
