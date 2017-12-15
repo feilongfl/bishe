@@ -42,6 +42,7 @@
     <Content Include="python\cut.py" />
     <Content Include="python\mnist_deep.py" />
     <Content Include="python\mnist_read.py" />
+    <Content Include="python\mnist_softmax.py" />
     <Content Include="python\remove_alpha.py" />
     <Content Include="README.md" />
     <Content Include="res\128x128.png" />

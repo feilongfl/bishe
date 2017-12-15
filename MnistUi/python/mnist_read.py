@@ -42,14 +42,14 @@ tf.global_variables_initializer().run()
 
 #load
 saver = tf.train.Saver()
-model_path = "./model.ckpt"
+model_path = "./python/model.ckpt"
 saver.restore(sess, model_path)
 #print("restore")
 
 ans=tf.argmax(y, 1)
 #print("answer");
 arr=[]
-img = Image.open('data.min.png').convert('L')
+img = Image.open('./data/data.min.png').convert('L')
 for i in range(28):
     for j in range(28):
         # mnist 里的颜色是0代表白色（背景），1.0代表黑色

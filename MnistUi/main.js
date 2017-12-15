@@ -92,6 +92,7 @@ function verifyImage()
         }
         ipcEvent.sender.send('verify', 'OK');
         ipcEvent.sender.send('finish', stdout);
+        console.log(stdout)
     });
 }
 
