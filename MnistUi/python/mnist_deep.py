@@ -173,7 +173,7 @@ def main(_):
     
     #save modules
     saver = tf.train.Saver()
-    model_path = "model.ckpt"
+    model_path = "./model.ckpt"
     saver.save(sess, model_path)
     saver.close()
 

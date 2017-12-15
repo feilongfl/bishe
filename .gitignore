@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /MnistUi/data.png
 data
+MNIST_data
