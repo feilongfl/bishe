@@ -41,6 +41,8 @@
     <Content Include="package.json" />
     <Content Include="python\cut.py" />
     <Content Include="python\mnist_deep.py" />
+    <Content Include="python\mnist_deep_read.py" />
+    <Content Include="python\mnist_deep_train.py" />
     <Content Include="python\mnist_read.py" />
     <Content Include="python\mnist_softmax.py" />
     <Content Include="python\remove_alpha.py" />
