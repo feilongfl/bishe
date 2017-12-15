@@ -262,3 +262,4 @@ __pycache__/
 /MnistUi/data.png
 data
 MNIST_data
+/MnistUi/log2

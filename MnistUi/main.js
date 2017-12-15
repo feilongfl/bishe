@@ -44,6 +44,7 @@ function createWindow () {
 // Ipc
 const ipcMain = require('electron').ipcMain
 ipcMain.on('inimg', getImg)
+ipcMain.on('train', train)
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -83,9 +84,29 @@ function processErr(error, stdout, stderr)
     ipcEvent.sender.send('errormsg', stderr);
 }
 
+function train(event, arg) {
+    //var readPyname = '/python/mnist_read.py';
+    var readPyname = '/python/mnist_deep_train.py ' + arg.toString();
+
+    console.log(readPyname);
+    /*
+    exec(python + __dirname + readPyname, (error, stdout, stderr) => {
+        if (error) {
+            processErr(error)
+            return;
+        }
+        ipcEvent.sender.send('verify', 'OK');
+        ipcEvent.sender.send('finish', stdout);
+        console.log(stdout)
+    });*/
+}
+
 function verifyImage()
 {
-    exec(python + __dirname + '/python/mnist_read.py', (error, stdout, stderr) => {
+    //var readPyname = '/python/mnist_read.py';
+    var readPyname = '/python/mnist_deep_read.py';
+
+    exec(python + __dirname + readPyname, (error, stdout, stderr) => {
         if (error) {
             processErr(error)
             return;
@@ -136,7 +157,7 @@ function dataUri2png(imgdata)
 var ipcEvent;
 //get image
 function getImg(event, arg) {
-    console.log(arg)
+    //console.log(arg)
     event.sender.send('inimg-reply', 'OK');
 
     ipcEvent = event;

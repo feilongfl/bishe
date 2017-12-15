@@ -49,9 +49,10 @@
             console.log('finish');
             $('#verify')[0].classList.remove('is-loading')
             $('#verify')[0].onclick = verifyNum;
-            vAnswer.answer = arg;
+            //vAnswer.answer = arg;
             console.log(arg);
-            $('#vanswer').show();
+            //$('#vanswer').show();
+            $('#number')[0].value = parseInt(arg);
         });
     </script>
 </head>
@@ -109,7 +110,7 @@
             </div>
             <div class="column">
                 <div class="media-content bd-structure-item bd-is-structure-right">
-                    <p>canvas input:</p>
+                    <label class="label">原始图像</label>
                     <div align="center">
                         <figure class="image is-128x128">
                             <img id="inimg" src="res/128x128.png">
@@ -117,17 +118,39 @@
                     </div>
                 </div>
                 <div class="media-content bd-structure-item bd-is-structure-right">
-                    <p>preprocessing output:</p>
+                    <label class="label">预处理</label>
                     <div align="center">
                         <figure class="image is-128x128">
                             <img id="preimg" src="res/128x128.png">
                         </figure>
                     </div>
                 </div>
-                <div class="media-content bd-structure-item bd-is-structure-right">
+                <!--<div class="media-content bd-structure-item bd-is-structure-right">
                     <p>TensorFlow output:</p>
                     <div align="center">
                         </p><h1 class="title" id="vanswer" hidden>{{answer}}</h1></p>
+                    </div>
+                </div>-->
+                <label class="label">识别结果</label>
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <div class="select is-fullwidth">
+                            <select id="number">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>    
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control" >
+                        <button class="button is-primary" id="trainButton" onclick="trainNumber()">训练</button>
                     </div>
                 </div>
                 <div align="center">
@@ -190,12 +213,12 @@
 
     <!-- tf answer -->
     <script>
-        var vAnswer = new Vue({
+        /*var vAnswer = new Vue({
             el: '#vanswer',
             data: {
                 answer: 0
             }
-        })
+        })*/
 
         var vErrorNoti = new Vue({
             el: '#verror',
@@ -219,6 +242,16 @@
             //show pre img
 
             
+        }
+    </script>
+
+    <!-- 训练 -->
+    <script>
+        function trainNumber()
+        {
+            $('#trainButton')[0].onclick = null;
+            $('#trainButton')[0].classList.add('is-loading')
+            ipcRenderer.send('train', $('#number')[0].value);
         }
     </script>
 
