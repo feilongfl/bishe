@@ -280,7 +280,7 @@
                         </div>
                         <transition name="slide-fade">
                             <div class="control" v-if="trainEnable">
-                                <button class="button is-warning is-large is-loading" v-if="train && trainEnable">训练</button>
+                                <button class="button is-warning is-large is-loading" v-if="train">训练</button>
                                 <button class="button is-warning is-large" onclick="trainNum()" v-else>训练</button>
                             </div>
                         </transition>
@@ -305,9 +305,15 @@
                                     启用训练
                                 </label>
                                 <transition name="slide-fade">
-                                    <label class="checkbox" v-if="trainEnable" v-model="preproBeforeTrain">
-                                        <input type="checkbox">
+                                    <label class="checkbox" v-if="trainEnable">
+                                        <input type="checkbox"  v-model="preproBeforeTrain">
                                         训练前自动预处理
+                                    </label>
+                                </transition>
+                                <transition name="slide-fade">
+                                    <label class="checkbox" v-if="trainEnable" >
+                                        <input type="checkbox" v-model="numTrain">
+                                        数字键训练
                                     </label>
                                 </transition>
                             </div>
@@ -326,6 +332,7 @@
                         </div>
 
                         <script>
+                            //
                             function trainNum() {
                                 if (trainserver.readyState == WebSocket.OPEN) {
                                     vPro.train = true;
@@ -387,9 +394,38 @@
                                     preproBeforeVerify: true,
                                     preproBeforeTrain: false,
                                     autoClean: false,
-                                    showPre: false
+                                    showPre: false,
+                                    numTrain: false
                                 }
                             })
+
+                            //快捷键
+                            function keyDown(e) {
+                                var keycode = e.which;
+                                var realkey = String.fromCharCode(e.which);
+                                console.log("按键码: " + keycode + " 字符: " + realkey);
+                                switch (realkey) {
+                                    case 'a':
+                                    case 'A':
+                                        verifyNumViaWS();
+                                        break;
+
+                                    case 'c':
+                                    case 'C':
+                                        context.clearRect(0, 0, 2000, 1000);
+                                        break;
+
+                                    default:
+                                        if (realkey >= '0' && realkey <= '9' && vPro.trainEnable) {
+                                            $('#number')[0].value = parseInt(realkey);
+                                            if (vPro.numTrain) {
+                                                console.log("num train" + realkey);
+                                                trainNum();
+                                            }
+                                        }
+                                }
+                            }
+                            document.onkeydown = keyDown;
                         </script>
                     </div>
                 </div>
