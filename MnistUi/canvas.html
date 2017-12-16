@@ -108,37 +108,37 @@
                 <!-- notification -->
                 <div id="verror" hidden>
                     <transition name="slide-fade">
-                            <div class="notification is-danger" id="verror_old" v-if="error">
-                                <button class="delete" onclick="vErrorNoti.error = false;"></button>
-                                {{errorMsg}}
-                            </div>
-                            <div class="notification is-warning" v-if="warning">
-                                <button class="delete" onclick="vErrorNoti.warning = false;"></button>
-                                {{warningMsg}}
-                            </div>
-                            <div class="notification is-success" v-if="success">
-                                <button class="delete" onclick="vErrorNoti.success = false;"></button>
-                                {{successMsg}}
-                            </div>
-                            <script>
-                                function showErr(str, time) {
-                                    vErrorNoti.errorMsg = str;
-                                    vErrorNoti.error = true;
-                                    setTimeout(function () { vErrorNoti.error = false; }, time);
-                                }
+                        <div class="notification is-danger" id="verror_old" v-if="error">
+                            <button class="delete" onclick="vErrorNoti.error = false;"></button>
+                            {{errorMsg}}
+                        </div>
+                        <div class="notification is-warning" v-if="warning">
+                            <button class="delete" onclick="vErrorNoti.warning = false;"></button>
+                            {{warningMsg}}
+                        </div>
+                        <div class="notification is-success" v-if="success">
+                            <button class="delete" onclick="vErrorNoti.success = false;"></button>
+                            {{successMsg}}
+                        </div>
+                        <script>
+                            function showErr(str, time) {
+                                vErrorNoti.errorMsg = str;
+                                vErrorNoti.error = true;
+                                setTimeout(function () { vErrorNoti.error = false; }, time);
+                            }
 
-                                function showWarn(str, time) {
-                                    vErrorNoti.warningMsg = str;
-                                    vErrorNoti.warning = true;
-                                    setTimeout(function () { vErrorNoti.warning = false; }, time);
-                                }
+                            function showWarn(str, time) {
+                                vErrorNoti.warningMsg = str;
+                                vErrorNoti.warning = true;
+                                setTimeout(function () { vErrorNoti.warning = false; }, time);
+                            }
 
-                                function showSuss(str, time) {
-                                    vErrorNoti.successMsg = str;
-                                    vErrorNoti.success = true;
-                                    setTimeout(function () { vErrorNoti.success = false; }, time);
-                                }
-                            </script>
+                            function showSuss(str, time) {
+                                vErrorNoti.successMsg = str;
+                                vErrorNoti.success = true;
+                                setTimeout(function () { vErrorNoti.success = false; }, time);
+                            }
+                        </script>
                     </transition>
                 </div>
                 <!-- server 状态 -->
@@ -164,65 +164,65 @@
                         </div>
                     </div>
                     <script>
-                        var readserveraddr = 'ws://localhost:15485/';
-                        var trainserveraddr = 'ws://localhost:15486/';
+                            var readserveraddr = 'ws://localhost:15485/';
+                            var trainserveraddr = 'ws://localhost:15486/';
 
-                        //
-                        var readserver = new WebSocket(readserveraddr);
-                        function readserverReceived(str) {
-                            console.log(str)
-                            $('#number')[0].value = parseInt(str.data);
-                            vPro.verify = false;
-                            showSuss("识别完成！", 500);
-                        }
-                        readserver.onmessage = readserverReceived;
-                        //
-                        var trainserver = new WebSocket(trainserveraddr);
-                        function trainserverReceived(str) {
-                            console.log(str)
-                            vPro.train = false;
-                            showSuss("训练完成！", 500);
-                        }
-                        trainserver.onmessage = trainserverReceived;
-
-                        var vws = new Vue({
-                            el: '#websockestatus',
-                            data: {
-                                readserver: WebSocket.CLOSED,
-                                trainserver: WebSocket.CLOSED
+                            //
+                            var readserver = new WebSocket(readserveraddr);
+                            function readserverReceived(str) {
+                                console.log(str)
+                                $('#number')[0].value = parseInt(str.data);
+                                vPro.verify = false;
+                                showSuss("识别完成！", 500);
                             }
-                        })
+                            readserver.onmessage = readserverReceived;
+                            //
+                            var trainserver = new WebSocket(trainserveraddr);
+                            function trainserverReceived(str) {
+                                console.log(str)
+                                vPro.train = false;
+                                showSuss("训练完成！", 500);
+                            }
+                            trainserver.onmessage = trainserverReceived;
 
-                        var statusCheckerTimeCount = 0;
-                        function statusChecker() {
-                            vws.readserver = readserver.readyState;
-                            vws.trainserver = trainserver.readyState;
+                            var vws = new Vue({
+                                el: '#websockestatus',
+                                data: {
+                                    readserver: WebSocket.CLOSED,
+                                    trainserver: WebSocket.CLOSED
+                                }
+                            })
 
-                            if (statusCheckerTimeCount > 50) {
-                                if (readserver.readyState != WebSocket.OPEN) {
-                                    try {
-                                        readserver = new WebSocket(readserveraddr);
-                                        readserver.onmessage = readserverReceived;
-                                    } catch (e) {
-                                        //console.log(e)
+                            var statusCheckerTimeCount = 0;
+                            function statusChecker() {
+                                vws.readserver = readserver.readyState;
+                                vws.trainserver = trainserver.readyState;
+
+                                if (statusCheckerTimeCount > 50) {
+                                    if (readserver.readyState != WebSocket.OPEN) {
+                                        try {
+                                            readserver = new WebSocket(readserveraddr);
+                                            readserver.onmessage = readserverReceived;
+                                        } catch (e) {
+                                            //console.log(e)
+                                        }
                                     }
+
+                                    if (trainserver.readyState != WebSocket.OPEN) {
+                                        try {
+                                            trainserver = new WebSocket(trainserveraddr);
+                                            trainserver.onmessage = trainserverReceived;
+                                        } catch (e) {
+                                            //console.log(e)
+                                        }
+                                    }
+                                    statusCheckerTimeCount = 0;
                                 }
 
-                                if (trainserver.readyState != WebSocket.OPEN) {
-                                    try {
-                                        trainserver = new WebSocket(trainserveraddr);
-                                        trainserver.onmessage = trainserverReceived;
-                                    } catch (e) {
-                                        //console.log(e)
-                                    }
-                                }
-                                statusCheckerTimeCount = 0;
+                                statusCheckerTimeCount++
+                                setTimeout(statusChecker, 100);
                             }
-
-                            statusCheckerTimeCount++
-                            setTimeout(statusChecker, 100);
-                        }
-                        statusChecker();
+                            statusChecker();
 
                     </script>
                 </div>
@@ -267,10 +267,12 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="control">
-                            <button class="button is-success is-loading is-large" v-if="preprocess">预处理</button>
-                            <button class="button is-success is-large" onclick="preProcessing()" v-else>预处理</button>
-                        </div>
+                        <transition name="slide-fade">
+                            <div class="control" v-if="showPre">
+                                <button class="button is-success is-loading is-large" v-if="preprocess">预处理</button>
+                                <button class="button is-success is-large" onclick="preProcessing()" v-else>预处理</button>
+                            </div>
+                        </transition>
                         <div class="control">
                             <div class="button is-link is-large is-loading" v-if="verify">识别</div>
                             <div class="button is-link is-large" onclick="verifyNumViaWS()" v-else>识别</div>
@@ -286,6 +288,10 @@
                     <div>
                         <div class="columns">
                             <div class="column">
+                                <label class="checkbox">
+                                    <input type="checkbox" v-model="showPre">
+                                    显示预处理按钮
+                                </label>
                                 <label class="checkbox">
                                     <input type="checkbox" v-model="autoClean">
                                     预处理后清除画布
@@ -380,7 +386,8 @@
                                     trainEnable: false,
                                     preproBeforeVerify: true,
                                     preproBeforeTrain: false,
-                                    autoClean: false
+                                    autoClean: false,
+                                    showPre: false
                                 }
                             })
                         </script>
@@ -447,7 +454,7 @@
                                 data: {
                                     errorMsg: 'error',
                                     warningMsg: 'warning',
-                                    success:'success',
+                                    success: 'success',
                                     error: false,
                                     warning: false,
                                     success: false
