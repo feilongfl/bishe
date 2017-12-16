@@ -18,7 +18,7 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 1024, height: 768,
+        width: 1235, height: 750,
         autoHideMenuBar: true
     })
 
@@ -141,6 +141,30 @@ function preImg()
     });
 }
 
+function cutImage2() {
+    exec(python + __dirname + '/python/cut.py', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error, stdout, stderr)
+            return;
+        }
+        ipcEvent.sender.send('cut', 'OK');
+
+        //verifyImage()
+    });
+}
+
+function preImg2() {
+    exec(python + __dirname + '/python/remove_alpha.py', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error, stdout, stderr)
+            return;
+        }
+        ipcEvent.sender.send('binimg', 'OK');
+
+        cutImage();
+    });
+}
+
 function dataUri2png(imgdata)
 {
     var regex = /^data:.+\/(.+);base64,(.*)$/;
@@ -149,7 +173,7 @@ function dataUri2png(imgdata)
     var data = matches[2];
     var buffer = new Buffer(data, 'base64');
     //fs.writeFileSync('data.' + ext, buffer);
-    fs.writeFile('./data/data.' + ext, buffer, preImg)
+    fs.writeFile('./data/data.' + ext, buffer, preImg2)
 }
 
 var ipcEvent;

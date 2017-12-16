@@ -20,6 +20,7 @@
 
     <!-- bulma -->
     <link rel="stylesheet" href="node_modules/bulma/css/bulma.css">
+    <link rel="stylesheet" href="ani.css">
 
     <!-- ipc -->
     <script>
@@ -30,20 +31,21 @@
         ipcRenderer.on('binimg', function (event, arg) {
             console.log('bin img fin');
         });
-        ipcRenderer.on('cut', function (event, arg) {
-            console.log('cut fin');
-            $('#preimg')[0].src = './data/data.min.png?' + Math.random();
-        });
+
         ipcRenderer.on('error', function (event, arg) {
             console.log(arg);
-            $('#verror').show();
-            setTimeout(function () { $('#verror').hide(); }, 10000);
-            $('#verify')[0].classList.remove('is-loading')
-            $('#verify')[0].onclick = verifyNum;
+            //$('#verror_old').show();
+            //setTimeout(function () { $('#verror_old').hide(); }, 10000);
+            //$('#verify')[0].classList.remove('is-loading')
+            //$('#verify')[0].onclick = verifyNum;
         });
         ipcRenderer.on('errormsg', function (event, arg) {
             console.log(arg);
-            vErrorNoti.errorMsg = arg;
+            //vErrorNoti.errorMsg = arg;
+            showErr(arg, 3000);
+            vPro.preprocess = false;
+            vPro.train = false;
+            vPro.verify = false;
         });
         ipcRenderer.on('finish', function (event, arg) {
             console.log('finish');
@@ -94,73 +96,295 @@
         </div>
     </nav>
 
-    <!-- notification -->
-    <div class="notification is-warning" hidden id="verror">
-        <button class="delete" onclick="$('#verror').hide()" ></button>
-        {{errorMsg}}
-    </div>
-
     <!-- body -->
     <section class="section">
         <div class="columns">
             <div class="column is-two-thirds" id="mnist-image-column">
-                <section class="hero is-link" >
+                <section class="hero is-link">
                     <canvas class="image" id="mnist-image"></canvas>
                 </section>
             </div>
             <div class="column">
-                <div class="media-content bd-structure-item bd-is-structure-right">
-                    <label class="label">原始图像</label>
-                    <div align="center">
-                        <figure class="image is-128x128">
-                            <img id="inimg" src="res/128x128.png">
-                        </figure>
-                    </div>
+                <!-- notification -->
+                <div id="verror" hidden>
+                    <transition name="slide-fade">
+                            <div class="notification is-danger" id="verror_old" v-if="error">
+                                <button class="delete" onclick="vErrorNoti.error = false;"></button>
+                                {{errorMsg}}
+                            </div>
+                            <div class="notification is-warning" v-if="warning">
+                                <button class="delete" onclick="vErrorNoti.warning = false;"></button>
+                                {{warningMsg}}
+                            </div>
+                            <div class="notification is-success" v-if="success">
+                                <button class="delete" onclick="vErrorNoti.success = false;"></button>
+                                {{successMsg}}
+                            </div>
+                            <script>
+                                function showErr(str, time) {
+                                    vErrorNoti.errorMsg = str;
+                                    vErrorNoti.error = true;
+                                    setTimeout(function () { vErrorNoti.error = false; }, time);
+                                }
+
+                                function showWarn(str, time) {
+                                    vErrorNoti.warningMsg = str;
+                                    vErrorNoti.warning = true;
+                                    setTimeout(function () { vErrorNoti.warning = false; }, time);
+                                }
+
+                                function showSuss(str, time) {
+                                    vErrorNoti.successMsg = str;
+                                    vErrorNoti.success = true;
+                                    setTimeout(function () { vErrorNoti.success = false; }, time);
+                                }
+                            </script>
+                    </transition>
                 </div>
-                <div class="media-content bd-structure-item bd-is-structure-right">
-                    <label class="label">预处理</label>
-                    <div align="center">
-                        <figure class="image is-128x128">
-                            <img id="preimg" src="res/128x128.png">
-                        </figure>
-                    </div>
-                </div>
-                <!--<div class="media-content bd-structure-item bd-is-structure-right">
-                    <p>TensorFlow output:</p>
-                    <div align="center">
-                        </p><h1 class="title" id="vanswer" hidden>{{answer}}</h1></p>
-                    </div>
-                </div>-->
-                <label class="label">识别结果</label>
-                <div class="field has-addons">
-                    <div class="control is-expanded">
-                        <div class="select is-fullwidth">
-                            <select id="number">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>    
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                            </select>
+                <!-- server 状态 -->
+                <div class="columns" id="websockestatus">
+                    <div class="column" id="readwebsocket">
+                        <div class="control">
+                            <div class="tags has-addons">
+                                <span class="tag">识别服务</span>
+                                <a class="tag is-success" v-if="readserver == WebSocket.OPEN">已启动</a>
+                                <a class="tag is-danger" v-else-if="readserver == WebSocket.CLOSED">未启动</a>
+                                <a class="tag is-warning" v-else>尝试中</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="control" >
-                        <button class="button is-warning" id="trainButton" onclick="trainNumber()">训练</button>
+                    <div class="column">
+                        <div class="control" id="trainwebsocket">
+                            <div class="tags has-addons">
+                                <span class="tag">训练服务</span>
+                                <a class="tag is-success" v-if="trainserver == WebSocket.OPEN">已启动</a>
+                                <a class="tag is-danger" v-else-if="trainserver == WebSocket.CLOSED">未启动</a>
+                                <a class="tag is-warning is-loading" v-else>尝试中</a>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        var readserveraddr = 'ws://localhost:15485/';
+                        var trainserveraddr = 'ws://localhost:15486/';
+
+                        //
+                        var readserver = new WebSocket(readserveraddr);
+                        function readserverReceived(str) {
+                            console.log(str)
+                            $('#number')[0].value = parseInt(str.data);
+                            vPro.verify = false;
+                            showSuss("识别完成！", 500);
+                        }
+                        readserver.onmessage = readserverReceived;
+                        //
+                        var trainserver = new WebSocket(trainserveraddr);
+                        function trainserverReceived(str) {
+                            console.log(str)
+                            vPro.train = false;
+                            showSuss("训练完成！", 500);
+                        }
+                        trainserver.onmessage = trainserverReceived;
+
+                        var vws = new Vue({
+                            el: '#websockestatus',
+                            data: {
+                                readserver: WebSocket.CLOSED,
+                                trainserver: WebSocket.CLOSED
+                            }
+                        })
+
+                        var statusCheckerTimeCount = 0;
+                        function statusChecker() {
+                            vws.readserver = readserver.readyState;
+                            vws.trainserver = trainserver.readyState;
+
+                            if (statusCheckerTimeCount > 50) {
+                                if (readserver.readyState != WebSocket.OPEN) {
+                                    try {
+                                        readserver = new WebSocket(readserveraddr);
+                                        readserver.onmessage = readserverReceived;
+                                    } catch (e) {
+                                        //console.log(e)
+                                    }
+                                }
+
+                                if (trainserver.readyState != WebSocket.OPEN) {
+                                    try {
+                                        trainserver = new WebSocket(trainserveraddr);
+                                        trainserver.onmessage = trainserverReceived;
+                                    } catch (e) {
+                                        //console.log(e)
+                                    }
+                                }
+                                statusCheckerTimeCount = 0;
+                            }
+
+                            statusCheckerTimeCount++
+                            setTimeout(statusChecker, 100);
+                        }
+                        statusChecker();
+
+                    </script>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="media-content bd-structure-item bd-is-structure-right">
+                            <label class="label">原始图像</label>
+                            <div align="center">
+                                <figure class="image is-128x128">
+                                    <img id="inimg" src="res/128x128.png">
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="media-content bd-structure-item bd-is-structure-right">
+                            <label class="label">预处理</label>
+                            <div align="center">
+                                <figure class="image is-128x128">
+                                    <img id="preimg" src="res/128x128.png">
+                                </figure>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div align="center">
-                    <div class="button is-link is-large" id="verify" onclick="verifyNum()">识 别 数 字</div></p>
-                    <a class="button is-danger is-outlined" onclick="context.clearRect(0,0,2000,1000)">
-                        <span>清除</span>
-                        <span class="icon is-small">
-                            <i class="fa fa-times"></i>
-                        </span>
-                    </a>
+                <div id="process">
+                    <label class="label">识别结果</label>
+                    <div class="field has-addons">
+                        <div class="control is-expanded">
+                            <div class="select is-fullwidth is-large">
+                                <select id="number">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control">
+                            <button class="button is-success is-loading is-large" v-if="preprocess">预处理</button>
+                            <button class="button is-success is-large" onclick="preProcessing()" v-else>预处理</button>
+                        </div>
+                        <div class="control">
+                            <div class="button is-link is-large is-loading" v-if="verify">识别</div>
+                            <div class="button is-link is-large" onclick="verifyNumViaWS()" v-else>识别</div>
+                            <!--<div class="button is-link is-large" id="verify" onclick="verifyNum()">识 别 数 字</div></p>-->
+                        </div>
+                        <transition name="slide-fade">
+                            <div class="control" v-if="trainEnable">
+                                <button class="button is-warning is-large is-loading" v-if="train && trainEnable">训练</button>
+                                <button class="button is-warning is-large" onclick="trainNum()" v-else>训练</button>
+                            </div>
+                        </transition>
+                    </div>
+                    <div>
+                        <div class="columns">
+                            <div class="column">
+                                <label class="checkbox">
+                                    <input type="checkbox" v-model="autoClean">
+                                    预处理后清除画布
+                                </label>
+                                <label class="checkbox">
+                                    <input type="checkbox" v-model="preproBeforeVerify">
+                                    识别前自动预处理
+                                </label>
+                                <label class="checkbox">
+                                    <input type="checkbox" v-model="trainEnable">
+                                    启用训练
+                                </label>
+                                <transition name="slide-fade">
+                                    <label class="checkbox" v-if="trainEnable" v-model="preproBeforeTrain">
+                                        <input type="checkbox">
+                                        训练前自动预处理
+                                    </label>
+                                </transition>
+                            </div>
+                            <div class="column">
+                                <nav class="breadcrumb is-centered" aria-label="breadcrumbs">
+                                    <ul>
+                                        <a class="button is-danger is-outlined" onclick="context.clearRect(0,0,2000,1000)">
+                                            <span>清除画布</span>
+                                            <span class="icon is-small">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </a>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <script>
+                            function trainNum() {
+                                if (trainserver.readyState == WebSocket.OPEN) {
+                                    vPro.train = true;
+                                    console.log($('#number')[0].value + '\n')
+                                    if (vPro.preproBeforeTrain) {
+                                        preProcessing();
+                                    } else {
+                                        trainserver.send($('#number')[0].value + '\n')
+                                    }
+                                } else {
+                                    showWarn("训练服务未启动！", 1000)
+                                }
+                            }
+
+                            ipcRenderer.on('cut', function (event, arg) {
+                                console.log('cut fin');
+                                $('#preimg')[0].src = './data/data.min.png?' + Math.random();
+                                vPro.preprocess = false;
+                                if (vPro.verify) {
+                                    readserver.send("\n");
+                                }
+                                if (vPro.train) {
+                                    trainserver.send($('#number')[0].value + '\n')
+                                }
+                                if (vPro.autoClean) {
+                                    context.clearRect(0, 0, 2000, 1000)
+                                }
+                            });
+
+                            function preProcessing() {
+                                vPro.preprocess = true;
+
+                                //show in img
+                                $('#inimg')[0].src = canvas.toDataURL("image/png");
+                                ipcRenderer.send('inimg', canvas.toDataURL("image/png"));
+                            }
+
+                            function verifyNumViaWS() {
+                                if (readserver.readyState == WebSocket.OPEN) {
+                                    vPro.verify = true;
+                                    if (vPro.preproBeforeVerify) {
+                                        preProcessing();
+                                    } else {
+                                        readserver.send("\n");
+                                        vPro.verify = false;
+                                    }
+                                } else {
+                                    showWarn("识别服务未启动！", 1000)
+                                }
+                            }
+
+                            var vPro = new Vue({
+                                el: '#process',
+                                data: {
+                                    verify: false,
+                                    preprocess: false,
+                                    train: false,
+                                    trainEnable: false,
+                                    preproBeforeVerify: true,
+                                    preproBeforeTrain: false,
+                                    autoClean: false
+                                }
+                            })
+                        </script>
+                    </div>
                 </div>
             </div>
         </div>
@@ -168,38 +392,38 @@
 
     <!-- canvas -->
     <script>
-        //get canvas
-        var canvas = document.getElementById("mnist-image")
-        if (canvas == null)
-            console.log('canvas init failed!')
+                            //get canvas
+                            var canvas = document.getElementById("mnist-image")
+                            if (canvas == null)
+                                console.log('canvas init failed!')
 
-        //set canvas resize on window size change
-        window.onresize = function () {
-            var canvasColumn = document.getElementById("mnist-image-column")
-            canvas.width = canvasColumn.clientWidth;
-            canvas.height = canvasColumn.clientHeight;
-        }
-        //resize to show
-        window.onresize()
+                            //set canvas resize on window size change
+                            window.onresize = function () {
+                                var canvasColumn = document.getElementById("mnist-image-column")
+                                canvas.width = canvasColumn.clientWidth;
+                                canvas.height = canvasColumn.clientHeight;
+                            }
+                            //resize to show
+                            window.onresize()
 
-        //set draw status
-        var drable = false;
-        canvas.onmousedown = function () { drable = true }
-        canvas.onmouseup = function () { drable = false }
+                            //set draw status
+                            var drable = false;
+                            canvas.onmousedown = function () { drable = true }
+                            canvas.onmouseup = function () { drable = false }
 
-        //draw
-        canvas.onmousemove = function (e) {
-            if (drable) {
-                context.fillRect(e.layerX, e.layerY, 20, 20)
-            }
-        }
+                            //draw
+                            canvas.onmousemove = function (e) {
+                                if (drable) {
+                                    context.fillRect(e.layerX, e.layerY, 20, 20)
+                                }
+                            }
 
-        //clear
-        function clearConvas() {
-            context.clearConvas();
-        }
+                            //clear
+                            function clearConvas() {
+                                context.clearConvas();
+                            }
 
-        var context = canvas.getContext('2d');
+                            var context = canvas.getContext('2d');
     </script>
 
     <!-- navs -->
@@ -208,57 +432,64 @@
     </script>
 
     <!-- canvas input -->
-
     <!-- pre processing output -->
-
     <!-- tf answer -->
     <script>
-        /*var vAnswer = new Vue({
-            el: '#vanswer',
-            data: {
-                answer: 0
-            }
-        })*/
+                            /*var vAnswer = new Vue({
+                                el: '#vanswer',
+                                data: {
+                                    answer: 0
+                                }
+                            })*/
 
-        var vErrorNoti = new Vue({
-            el: '#verror',
-            data: {
-                errorMsg: '运行时发生错误'
-            }
-        })
-        
+                            var vErrorNoti = new Vue({
+                                el: '#verror',
+                                data: {
+                                    errorMsg: 'error',
+                                    warningMsg: 'warning',
+                                    success:'success',
+                                    error: false,
+                                    warning: false,
+                                    success: false
+                                }
+                            })
+
     </script>
 
     <!-- verify -->
     <script>
-        function verifyNum() {
-            // todo:
-            //start verify
-            $('#verify')[0].onclick = null;
-            $('#verify')[0].classList.add('is-loading')
-            //show in img
-            $('#inimg')[0].src = canvas.toDataURL("image/png");
-            ipcRenderer.send('inimg', canvas.toDataURL("image/png"));
-            //show pre img
+                            function verifyNum() {
+                                // todo:
+                                //start verify
+                                $('#verify')[0].onclick = null;
+                                $('#verify')[0].classList.add('is-loading')
+                                //show in img
+                                $('#inimg')[0].src = canvas.toDataURL("image/png");
+                                ipcRenderer.send('inimg', canvas.toDataURL("image/png"));
+                                //show pre img
 
-            
-        }
+
+                            }
     </script>
 
     <!-- 训练 -->
     <script>
-        function trainNumber()
-        {
-            $('#trainButton')[0].onclick = null;
-            $('#trainButton')[0].classList.add('is-loading')
-            ipcRenderer.send('train', $('#number')[0].value);
-        }
+                            function trainNumber() {
+                                $('#trainButton')[0].onclick = null;
+                                $('#trainButton')[0].classList.add('is-loading')
+                                ipcRenderer.send('train', $('#number')[0].value);
+                            }
 
-        ipcRenderer.on('trainFin', function (event, arg) {
-            $('#trainButton')[0].onclick = trainNumber;
-            $('#trainButton')[0].classList.remove('is-loading')
-            console.log(arg);
-        });
+                            ipcRenderer.on('trainFin', function (event, arg) {
+                                $('#trainButton')[0].onclick = trainNumber;
+                                $('#trainButton')[0].classList.remove('is-loading')
+                                console.log(arg);
+                            });
+    </script>
+
+    <!-- notification -->
+    <script>
+                            $('#verror')[0].hidden = false
     </script>
 
     <!-- footer -->

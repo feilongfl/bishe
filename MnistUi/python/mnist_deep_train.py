@@ -190,15 +190,18 @@ def main(_):
         numarr=[0]*10
         numarr[inNum]=1
         train_step.run(feed_dict={x: np.array(arr).reshape((1, 784)), y_: np.array(numarr).reshape((1, 10)), keep_prob: 0.5})
-        #saver.save(sess, model_path)
-        print("OK")
+        saver.save(sess, model_path)
+        print(inNum)
 
     if FLAGS.websocket:
-        print("server on!")
+        #print("server on!")
         inNumber = input()
         while inNumber != 'q':
             #print(inNumber)
-            trainfunc(int(inNumber))
+            if inNumber != '':
+                #print(inNumber)
+                trainfunc(int(inNumber))
+
             inNumber = input()
 
         print("bye")

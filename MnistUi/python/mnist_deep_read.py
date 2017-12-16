@@ -191,7 +191,7 @@ def main(_):
     
     # run
     if FLAGS.websocket:
-        print("server on!")
+        #print("server on!")
         while input() != 'q':
             verfynum()
 
