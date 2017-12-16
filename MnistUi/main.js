@@ -165,6 +165,16 @@ function preImg2() {
     });
 }
 
+function prepro() {
+    exec('magick convert ./data/data.png -background white -alpha remove -trim -resize 28x28 -gravity center -extent 28x28 ./data/data.min.png', (error, stdout, stderr) => {
+        if (error) {
+            processErr(error, stdout, stderr)
+            return;
+        }
+        ipcEvent.sender.send('cut', 'OK');
+    });
+}
+
 function dataUri2png(imgdata)
 {
     var regex = /^data:.+\/(.+);base64,(.*)$/;
@@ -173,7 +183,7 @@ function dataUri2png(imgdata)
     var data = matches[2];
     var buffer = new Buffer(data, 'base64');
     //fs.writeFileSync('data.' + ext, buffer);
-    fs.writeFile('./data/data.' + ext, buffer, preImg2)
+    fs.writeFile('./data/data.' + ext, buffer, prepro)
 }
 
 var ipcEvent;
