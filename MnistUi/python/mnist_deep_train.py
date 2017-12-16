@@ -175,19 +175,40 @@ def main(_):
     model_path = "./data/model/deep/model.ckpt"
     saver.restore(sess, model_path)
 
-    #verify number
     ans=tf.argmax(y_conv, 1)
-    arr=[]
-    img = Image.open('./data/data.min.png').convert('L')
-    for i in range(28):
-        for j in range(28):
-            # mnist 里的颜色是0代表白色（背景），1.0代表黑色
-            pixel = 1.0 - float(img.getpixel((j, i)))/255.0
-            arr.append(pixel)
 
-    numarr=[0]*10
-    numarr[FLAGS.num]=1
-    train_step.run(feed_dict={x: np.array(arr).reshape((1, 784)), y_: np.array(numarr).reshape((1, 10)), keep_prob: 0.5})
+    #train number
+    def trainfunc(inNum):
+        arr=[]
+        img = Image.open('./data/data.min.png').convert('L')
+        for i in range(28):
+            for j in range(28):
+                # mnist 里的颜色是0代表白色（背景），1.0代表黑色
+                pixel = 1.0 - float(img.getpixel((j, i)))/255.0
+                arr.append(pixel)
+
+        numarr=[0]*10
+        numarr[inNum]=1
+        train_step.run(feed_dict={x: np.array(arr).reshape((1, 784)), y_: np.array(numarr).reshape((1, 10)), keep_prob: 0.5})
+        #saver.save(sess, model_path)
+        print("OK")
+
+    if FLAGS.websocket:
+        print("server on!")
+        inNumber = input()
+        while inNumber != 'q':
+            #print(inNumber)
+            trainfunc(int(inNumber))
+            inNumber = input()
+
+        print("bye")
+    else:
+        #print("train num:",FLAGS.num)
+        if FLAGS.num < 10:
+            trainfunc(FLAGS.num)
+        else:
+            print("err");
+            return -1
 
 	#run test
     #print('test accuracy %g' % accuracy.eval(feed_dict={
@@ -200,12 +221,22 @@ def main(_):
     #save modules
     #saver = tf.train.Saver()
     #model_path = "./model.ckpt"
-    saver.save(sess, model_path)
+
+def str2bool(v):
+   if v.lower() in ('yes', 'true', 't', 'y', '1'):
+       return True
+   elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+       return False
+   else:
+       raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--num', type=int,
+  parser.add_argument('--num', type=int,default=10,
                       help='number input')
+  parser.add_argument('--websocket', type=str2bool,nargs='?',
+                      const=True,default=False,
+                      help='start as websocket server')
   FLAGS, unparsed = parser.parse_known_args()
-  print("train num:",FLAGS.num)
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

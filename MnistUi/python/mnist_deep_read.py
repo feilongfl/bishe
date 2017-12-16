@@ -173,20 +173,31 @@ def main(_):
 	#restore model
     saver = tf.train.Saver()
     model_path = "./data/model/deep/model.ckpt"
-    saver.restore(sess, model_path)
 
     #verify number
     ans=tf.argmax(y_conv, 1)
-    arr=[]
-    img = Image.open('./data/data.min.png').convert('L')
-    for i in range(28):
-        for j in range(28):
-            # mnist 里的颜色是0代表白色（背景），1.0代表黑色
-            pixel = 1.0 - float(img.getpixel((j, i)))/255.0
-            arr.append(pixel)
 
-    num = sess.run(answernum, feed_dict = {x:np.array(arr).reshape((1, 784)), keep_prob: 1.0});
-    print(num[0])
+    def verfynum():
+        saver.restore(sess, model_path)
+        arr=[]
+        img = Image.open('./data/data.min.png').convert('L')
+        for i in range(28):
+            for j in range(28):
+                # mnist 里的颜色是0代表白色（背景），1.0代表黑色
+                pixel = 1.0 - float(img.getpixel((j, i)))/255.0
+                arr.append(pixel)
+        num = sess.run(answernum, feed_dict = {x:np.array(arr).reshape((1, 784)), keep_prob: 1.0});
+        print(num[0])
+    
+    # run
+    if FLAGS.websocket:
+        print("server on!")
+        while input() != 'q':
+            verfynum()
+
+        print("bye")
+    else:
+        verfynum()
 
 	#run test
     #print('test accuracy %g' % accuracy.eval(feed_dict={
@@ -201,10 +212,19 @@ def main(_):
     #model_path = "./model.ckpt"
     #saver.save(sess, model_path)
 
+def str2bool(v):
+   if v.lower() in ('yes', 'true', 't', 'y', '1'):
+       return True
+   elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+       return False
+   else:
+       raise argparse.ArgumentTypeError('Boolean value expected.')
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str,
-                      default='./mnist/input_data',
-                      help='Directory for storing input data')
+  parser.add_argument('--websocket', type=str2bool,nargs='?',
+                      const=True,default=False,
+                      help='start as websocket server')
   FLAGS, unparsed = parser.parse_known_args()
+  #print(FLAGS.websocket)
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
