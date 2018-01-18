@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+websocketd --port 15485 python ./python/mnist_deep_read.py --websocket 2>/dev/null

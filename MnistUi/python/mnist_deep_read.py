@@ -26,6 +26,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+os.environ[ 'TF_CPP_MIN_LOG_LEVEL' ] = '2'
+
 import argparse
 import sys
 import tempfile
@@ -139,7 +142,7 @@ def main(_):
   y_conv, keep_prob = deepnn(x)
 
   with tf.name_scope('loss'):
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y_,
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_,
                                                             logits=y_conv)
   cross_entropy = tf.reduce_mean(cross_entropy)
 
@@ -188,7 +191,7 @@ def main(_):
                 arr.append(pixel)
         num = sess.run(answernum, feed_dict = {x:np.array(arr).reshape((1, 784)), keep_prob: 1.0});
         print(num[0])
-    
+
     # run
     if FLAGS.websocket:
         #print("server on!")
@@ -206,7 +209,7 @@ def main(_):
     #write log
     #writer = tf.summary.FileWriter("log2", tf.get_default_graph())
     #writer.close()
-    
+
     #save modules
     #saver = tf.train.Saver()
     #model_path = "./model.ckpt"
